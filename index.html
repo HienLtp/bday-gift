@@ -1,0 +1,261 @@
+<!DOCTYPE html> 
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Birthday Surprise</title>
+  <!-- Animate.css -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+  <style>
+    body {
+      margin: 0;
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: #111;
+      color: white;
+      font-family: 'Poppins', sans-serif;
+      overflow: hidden;
+    }
+
+    /* Loader container */
+    #loading {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+    }
+
+    /* Loader */
+    .loader {
+      width: 10em;
+      height: 10em;
+      font-size: 10px;
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .loader .face {
+      position: absolute;
+      border-radius: 50%;
+      border-style: solid;
+      animation: animate023845 1.5s linear infinite;
+    }
+
+    .loader .face:nth-child(1) {
+      width: 100%;
+      height: 100%;
+      color: #9966FF;
+      border-color: currentColor transparent transparent currentColor;
+      border-width: 0.2em 0.2em 0em 0em;
+      --deg: -45deg;
+      animation-direction: normal;
+    }
+
+    .loader .face:nth-child(2) {
+      width: 70%;
+      height: 70%;
+      color: #9999FF;
+      border-color: currentColor currentColor transparent transparent;
+      border-width: 0.2em 0em 0em 0.2em;
+      --deg: -135deg;
+      animation-direction: reverse;
+    }
+
+    .loader .face .circle {
+      position: absolute;
+      width: 50%;
+      height: 0.1em;
+      top: 50%;
+      left: 50%;
+      background-color: transparent;
+      transform: rotate(var(--deg));
+      transform-origin: left;
+    }
+
+    .loader .face .circle::before {
+      position: absolute;
+      top: -0.5em;
+      right: -0.5em;
+      content: '';
+      width: 1em;
+      height: 1em;
+      background-color: currentColor;
+      border-radius: 50%;
+      box-shadow: 0 0 2em,
+                  0 0 4em,
+                  0 0 6em,
+                  0 0 8em,
+                  0 0 10em,
+                  0 0 0 0.5em rgba(255, 255, 255, 0.1);
+    }
+
+    @keyframes animate023845 {
+      to {
+        transform: rotate(1turn);
+      }
+    }
+
+    /* Surprise section */
+    #surprise {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+    }
+
+    /* Note Card */
+    .note {
+      width: 500px;
+      height: 200px;
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      text-align: center;
+    }
+
+    .note_cube {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      border-radius: 30px;
+    }
+
+    .note_cube--glowing {
+      z-index: 3;
+      background-color: rgba(255, 255, 255, 0.2);
+      border: 2px solid rgba(255, 255, 255, 0.4);
+      backdrop-filter: blur(6px);
+    }
+
+    .note_cube--color {
+      z-index: 1;
+      filter: blur(2px);
+      background: linear-gradient(135deg, #FF9966, #FF6666);
+      animation: loadtwo 3s ease-in-out infinite;
+    }
+
+    @keyframes loadtwo {
+      50% {
+        transform: rotate(-8deg);
+      }
+    }
+
+    .note_content {
+      position: relative;
+      z-index: 5;
+      color: #fff;
+    }
+
+    .note_content h1 {
+      font-size: 2rem;
+      margin: 0;
+      color: #FF3300;
+      text-shadow: 0 0 20px #fff, 0 0 40px #fff;
+    }
+
+    .note_content p {
+      font-size: 1.2rem;
+      margin-top: 10px;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Loader -->
+  <div id="loading" class="animate__animated animate__fadeIn">
+    <div class="loader">
+      <div class="face">
+        <div class="circle"></div>
+      </div>
+      <div class="face">
+        <div class="circle"></div>
+      </div>
+    </div>
+    <h2 id="loadingText" style="white-space:pre;
+      margin-top:20px;
+      background: linear-gradient(to bottom right, #9900FF, #99FFFF);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      color: transparent; text-shadow: 0 0 5px rgba(255,255,255,0.5);
+    ">
+      Loading your surprise...
+    </h2>
+  </div>
+
+  <!-- Surprise -->
+  <div id="surprise" class="animate__animated">
+    <div class="note animate__fadeInUp">
+      <div class="note_cube note_cube--color"></div>
+      <div class="note_cube note_cube--glowing"></div>
+      <div class="note_content">
+        <h1>Happy Birthday!! 🎉🎂</h1>
+        <p class="animate__tada animate__delay-1s">Wishing your life full of joy, love & surprises 💖</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Confetti -->
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+  <script>
+    const loadingText = document.getElementById("loadingText");
+    const dots = ["...", ".. ", ".  ", "   ",".  ", ".. ","..."];
+    let i = 0;
+
+    // Looping loading dots
+    const textInterval = setInterval(() => {
+      loadingText.textContent = "Loading your surprise" + dots[i];
+      i = (i + 1) % dots.length;
+    }, 300);
+
+    // After 3s -> fade out loader, show surprise + confetti
+    setTimeout(() => {
+      const loader = document.getElementById("loading");
+      const surprise = document.getElementById("surprise");
+
+      loader.classList.remove("animate__fadeIn");
+      loader.classList.add("animate__fadeOut");
+
+      setTimeout(() => {
+        loader.style.display = "none";
+
+        // Set cover background
+        document.body.style.background = "url('https://images.pexels.com/photos/2431457/pexels-photo-2431457.jpeg') no-repeat center center/cover";
+
+        // Show surprise
+        surprise.style.display = "flex";
+        surprise.classList.add("animate__fadeInUp");
+
+        // Fire confetti automatically
+        var duration = 2000;
+        var end = Date.now() + duration;
+        (function frame() {
+          confetti({
+            particleCount: 7,
+            angle: 60,
+            spread: 55,
+            origin: { x: 0 }
+          });
+          confetti({
+            particleCount: 7,
+            angle: 120,
+            spread: 55,
+            origin: { x: 1 }
+          });
+          if (Date.now() < end) {
+            requestAnimationFrame(frame);
+          }
+        })();
+      }, 1000); 
+    }, 3000);
+  </script>
+
+</body>
+</html>
