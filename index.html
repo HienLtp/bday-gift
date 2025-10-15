@@ -20,19 +20,27 @@
     }
 
     /* Loader container */
+    /* Loader container - fullscreen overlay */
     #loading {
+      position: absolute;   /* covers the page */
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: #111;     /* dark background */
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
       text-align: center;
+      z-index: 9999;        /* always on top */
     }
 
     /* Loader */
     .loader {
       width: 10em;
       height: 10em;
-      font-size: 10px;
+      font-size: 1.44vh;
       position: relative;
       display: flex;
       align-items: center;
@@ -110,40 +118,55 @@
 
     /* Note Card */
     .note {
-      width: 500px;
-      height: 200px;
+      width: 72vw;              /* scales with width instead of height */
+      height: 28.8vw;
       position: relative;
       display: flex;
       align-items: center;
       justify-content: center;
-      padding: 20px;
+      padding: 2.88vw;
       text-align: center;
     }
 
+    
     .note_cube {
       position: absolute;
       width: 100%;
       height: 100%;
-      border-radius: 30px;
+      border-radius: 4.32vw;
     }
+
+    .note {
+      width: min(72vw, 500px);
+      height: auto;             /* let height adjust automatically */
+      aspect-ratio: 72 / 28.8;  /* preserve the original shape */
+      padding: 2.5vw;
+    }
+
 
     .note_cube--glowing {
       z-index: 3;
-      background-color: rgba(255, 255, 255, 0.2);
-      border: 2px solid rgba(255, 255, 255, 0.4);
-      backdrop-filter: blur(6px);
+      background-color: rgba(255,255,255, 0.2);
+      border: 0.288vh solid rgba(255,255,255, 0.4);
+      backdrop-filter: blur(0.864vh);
     }
 
     .note_cube--color {
       z-index: 1;
-      filter: blur(2px);
-      background: linear-gradient(135deg, #FF9966Dd, #FF6666dd);
-      animation: loadtwo 3s ease-in-out infinite;
+      filter: blur(0.432vh);
+      background: linear-gradient(135deg, #d6ff50, #08be0e, #00eaff, #0099ff, #3164ff , #cc00ff, #ff00cc, #ff0084, #ff3300, #ff9900);
+      animation: loadtwo 1.75s ease-in-out infinite;
     }
 
     @keyframes loadtwo {
+      0% {
+        transform: rotate(4deg);
+      }
       50% {
-        transform: rotate(-8deg);
+        transform: rotate(-4deg);
+      }
+      100% {
+        transform: rotate(4deg);
       }
     }
 
@@ -154,16 +177,17 @@
     }
 
     .note_content h1 {
-      font-size: 2rem;
+      font-size: clamp(1.2rem, 3vw, 2rem);
       margin: 0;
-      color: #FF3300;
-      text-shadow: 0 0 20px #fff, 0 0 40px #fff;
+      color: rgb(255,255,255);
+      text-shadow: 0 0 7.2vh #ff0, 0 0 14.4vh #fff;
     }
 
     .note_content p {
-      font-size: 1.2rem;
-      margin-top: 10px;
+      font-size: clamp(0.9rem, 2vw, 1.2rem);
+      margin-top: 1.44vh;
     }
+    
   </style>
 </head>
 <body>
@@ -179,84 +203,121 @@
       </div>
     </div>
     <h2 id="loadingText" style="white-space:pre;
-      margin-top:20px;
+      margin-top:2.88vh;
       background: linear-gradient(to bottom right, #9900FF, #99FFFF);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
       background-clip: text;
-      color: transparent; text-shadow: 0 0 5px rgba(255,255,255,0.5);
+      color: transparent; text-shadow: 0 0 0.72vh rgba(255,255,255,0.5);
     ">
       Loading your surprise...
     </h2>
-  </div>
+  </div>  
 
   <!-- Surprise -->
   <div id="surprise" class="animate__animated">
-    <div class="note animate__fadeInUp" style="margin-top:-200px; margin-left:-800px;">
+    <div class="note animate__fadeInUp" style="margin-top:-28.8vh; position: absolute; left: 0%; transform: translateX(-110%);">
+
       <div class="note_cube note_cube--color"></div>
       <div class="note_cube note_cube--glowing"></div>
       <div class="note_content">
-        <h1>Happy Birthday!! 🎉🎂</h1>
-        <p class="animate__tada animate__delay-1s">Wishing your life full of joy, love & surprises 💖</p>
+        <h1 style="font-family: Pacifico, cursive">Happy Birthday to youu Aratinga</h1>
+        <p class="animate__tada animate__delay-1s">Wishing your life full of joy, nice humans & surprises!!</p>
       </div>
     </div>
   </div>
 
+  <!-- Surprise Sound -->
+  <audio id="surprise-sound">
+    <source src="https://cdn.pixabay.com/download/audio/2025/08/08/audio_651d4215e6.mp3?filename=explosion-3-386885.mp3" type="audio/mpeg"> 
+  </audio>
+
+  <!-- Happy Birthday Sound -->
+  <audio id="happy-birthday-sound" loop hidden>
+    <source src="https://cdn.pixabay.com/download/audio/2025/04/30/audio_9834479b67.mp3?filename=happy-birthday-334876.mp3" type="audio/mpeg">
+  </audio>
+
+  <!-- Music Toggle Button -->
+  <button id="musicToggle" class="glowButton" style=" display: none;
+  background: linear-gradient(135deg, #3fb670cc, #040c07cc, #22613ccc);">
+    🎵
+  </button>
+  
+  
   <!-- Confetti -->
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
   <script>
     const loadingText = document.getElementById("loadingText");
     const dots = ["...", ".. ", ".  ", "   ",".  ", ".. ","..."];
     let i = 0;
-
-    // Looping loading dots
+  
+    // Loading text animation
     const textInterval = setInterval(() => {
       loadingText.textContent = "Loading your surprise" + dots[i];
       i = (i + 1) % dots.length;
     }, 300);
-
-    // After 3s -> fade out loader, show surprise + confetti
-    setTimeout(() => {
-      const loader = document.getElementById("loading");
-      const surprise = document.getElementById("surprise");
-
-      loader.classList.remove("animate__fadeIn");
-      loader.classList.add("animate__fadeOut");
-
+  
+    // Preload background image
+    const bgImage = new Image();
+    bgImage.src = "https://images.pexels.com/photos/2431457/pexels-photo-2431457.jpeg";
+  
+    bgImage.onload = () => {
       setTimeout(() => {
-        loader.style.display = "none";
+        const loader = document.getElementById("loading");
+        const surprise = document.getElementById("surprise");
 
-        // Set cover background
-        document.body.style.background = "url('https://images.pexels.com/photos/2431457/pexels-photo-2431457.jpeg') no-repeat center center/cover";
+        loader.classList.remove("animate__fadeIn");
+        loader.classList.add("animate__fadeOut");
 
-        // Show surprise
-        surprise.style.display = "flex";
-        surprise.classList.add("animate__fadeInUp");
+        setTimeout(() => {
+          loader.style.display = "none";
 
-        // Fire confetti automatically
-        var duration = 2000;
-        var end = Date.now() + duration;
-        (function frame() {
-          confetti({
-            particleCount: 20,
-            angle: 60,
-            spread: 100,
-            origin: { x: 0 }
+          document.body.style.background = `url('${bgImage.src}') no-repeat center center/cover`;
+
+          // Show surprise
+          surprise.style.display = "flex";
+          surprise.classList.add("animate__fadeInUp");
+
+          // Play sounds
+          const explosion = document.getElementById("surprise-sound");
+          const birthdaySong = document.getElementById("happy-birthday-sound");
+          explosion.play();
+          birthdaySong.play();
+
+          // 🎵 Show the music toggle only now
+          const musicToggle = document.getElementById("musicToggle");
+          musicToggle.style.display = "inline-block"; // show button
+          musicToggle.style.position = "fixed"; // position top-right
+          musicToggle.style.top = "1rem";
+          musicToggle.style.right = "1rem";
+          musicToggle.style.zIndex = "1000";
+
+          let isPlaying = true;
+
+          musicToggle.addEventListener("click", () => {
+            if (isPlaying) {
+              birthdaySong.pause();
+              musicToggle.textContent = "🔇";
+            } else {
+              birthdaySong.play();
+              musicToggle.textContent = "🎵";
+            }
+            isPlaying = !isPlaying;
           });
-          confetti({
-            particleCount: 20,
-            angle: 120,
-            spread: 100,
-            origin: { x: 1 }
-          });
-          if (Date.now() < end) {
-            requestAnimationFrame(frame);
-          }
-        })();
-      }, 1000); 
-    }, 3000);
+
+          // Confetti
+          var duration = 2000;
+          var end = Date.now() + duration;
+          (function frame() {
+            confetti({ particleCount: 20, angle: 60, spread: 100, origin: { x: 0 } });
+            confetti({ particleCount: 20, angle: 120, spread: 100, origin: { x: 1 } });
+            if (Date.now() < end) requestAnimationFrame(frame);
+          })();
+
+        }, 1500);
+      }, 3000); // loader visible time
+    };
   </script>
-
+    
 </body>
 </html>
-
