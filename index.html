@@ -242,8 +242,15 @@
   background: linear-gradient(135deg, #3fb670cc, #040c07cc, #22613ccc);">
     🎵
   </button>
+
+  <!-- Text link to change background -->
+  <p style="position: fixed; top: 1rem; left: 1rem; z-index: 1000; color: #04cea5; font-family: Consolas, monospace; font-size: 18px; background-color: rgba(0,0,0,0.5);">
+    Want to change the background? <a href="#" id="bgUploadLink" style="color: #00ffcc; text-decoration: underline; cursor: pointer;">Click here.</a>
+  </p>
   
-  
+  <!-- Hidden file input -->
+  <input type="file" id="bgUpload" accept="image/*" style="display:none;">
+
   <!-- Confetti -->
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
   <script>
@@ -260,7 +267,36 @@
     // Preload background image
     const bgImage = new Image();
     bgImage.src = "https://images.pexels.com/photos/2431457/pexels-photo-2431457.jpeg";
-  
+
+    // Preload Spotify playlists (hidden initially)
+    const spotifyContainer = document.createElement("div");
+    spotifyContainer.style.position = "fixed";
+    spotifyContainer.style.top = "2rem";
+    spotifyContainer.style.right = "50px";
+    spotifyContainer.style.width = "550px";
+    spotifyContainer.style.borderRadius = "12px";
+    spotifyContainer.style.overflow = "hidden";
+    spotifyContainer.style.boxShadow = "0 0 10px rgba(0,0,0,0)";
+    spotifyContainer.style.display = "none"; // hidden until ready
+
+    spotifyContainer.innerHTML = `
+      <h3 style="font-family: Consolas, monospace; font-size: 24px; background-color: black; color: #00ffcc; padding: 20px; border-radius: 10px; box-shadow: 0 0 10px #00ffcc; text-align: center;">
+        🎶 Playlists that you might like 🎶
+      </h3>
+
+      <div style="margin-bottom: 1rem;">
+        <iframe data-testid="embed-iframe" style="border-radius:12px" src="https://open.spotify.com/embed/playlist/4ODkJWb0MljTNxyR4UM55a?utm_source=generator" width="100%" height="152" frameBorder="0" allowfullscreen allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>
+      </div>
+      <div style="margin-bottom: 1rem;">
+        <iframe data-testid="embed-iframe" style="border-radius:12px" src="https://open.spotify.com/embed/playlist/2N431hnyTbhOSGh2prPB0l?utm_source=generator" width="100%" height="152" frameBorder="0" allowfullscreen allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>
+      </div>
+      <div style="margin-bottom: 1rem;">
+        <iframe data-testid="embed-iframe" style="border-radius:12px" src="https://open.spotify.com/embed/playlist/75eNkFcIh9w3ZfEOdnmQrh?utm_source=generator" width="100%" height="152" frameBorder="0" allowfullscreen allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>
+      </div>
+    `;
+
+    document.body.appendChild(spotifyContainer);
+
     bgImage.onload = () => {
       setTimeout(() => {
         const loader = document.getElementById("loading");
@@ -272,6 +308,7 @@
         setTimeout(() => {
           loader.style.display = "none";
 
+          // Set background
           document.body.style.background = `url('${bgImage.src}') no-repeat center center/cover`;
 
           // Show surprise
@@ -284,16 +321,15 @@
           explosion.play();
           birthdaySong.play();
 
-          // 🎵 Show the music toggle only now
+          // Show music toggle button
           const musicToggle = document.getElementById("musicToggle");
-          musicToggle.style.display = "inline-block"; // show button
-          musicToggle.style.position = "fixed"; // position top-right
+          musicToggle.style.display = "inline-block";
+          musicToggle.style.position = "fixed";
           musicToggle.style.top = "1rem";
           musicToggle.style.right = "1rem";
           musicToggle.style.zIndex = "1000";
 
           let isPlaying = true;
-
           musicToggle.addEventListener("click", () => {
             if (isPlaying) {
               birthdaySong.pause();
@@ -304,10 +340,53 @@
             }
             isPlaying = !isPlaying;
           });
+          
+          // Background image upload functionality
+          const bgUploadText = document.getElementById('bgUploadText');
+          const bgUploadLink = document.getElementById('bgUploadLink');
+          const bgUpload = document.getElementById('bgUpload');
 
-          // Confetti
-          var duration = 2000;
-          var end = Date.now() + duration;
+          // Trigger file input when clicking link
+          bgUploadLink.addEventListener('click', (e) => {
+            e.preventDefault();
+            bgUpload.click();
+          });
+
+          // Change background when file selected
+          bgUpload.addEventListener('change', (event) => {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = (e) => {
+              document.body.style.background = `url('${e.target.result}') no-repeat center center/cover`;
+            };
+            reader.readAsDataURL(file);
+          });
+
+          // Show the text after the loader finishes and the surprise appears
+          window.addEventListener('load', () => {
+            setTimeout(() => {
+              bgUploadText.style.display = 'block';
+            }, 4500); // Adjust delay according to your loader & surprise timing
+          });
+          
+          // Show Spotify container now
+          spotifyContainer.style.display = "block";
+
+          // Confetti on top layer
+          const confettiCanvas = document.querySelector('canvas');
+          if (confettiCanvas) {
+            confettiCanvas.style.position = 'fixed';
+            confettiCanvas.style.top = 0;
+            confettiCanvas.style.left = 0;
+            confettiCanvas.style.pointerEvents = 'none';
+            confettiCanvas.style.zIndex = 9999;
+          }
+
+          // Confetti animation
+          const duration = 2000;
+          const end = Date.now() + duration;
           (function frame() {
             confetti({ particleCount: 20, angle: 60, spread: 100, origin: { x: 0 } });
             confetti({ particleCount: 20, angle: 120, spread: 100, origin: { x: 1 } });
